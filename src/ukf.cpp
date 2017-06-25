@@ -24,11 +24,9 @@ UKF::UKF() {
     P_ = MatrixXd(n_x_, n_x_);
 
     // Process noise standard deviation longitudinal acceleration in m/s^2
-//    std_a_ = .5;
     std_a_ = .449;
     
     // Process noise standard deviation yaw acceleration in rad/s^2
-//    std_yawdd_ = .5;
     std_yawdd_ = .77;
     
     is_initialized_ = false;
@@ -345,7 +343,7 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
     
     S += R_radar_;
     Eigen::MatrixXd Si = S.inverse();
-    MatrixXd K = Tc * Si;                             //Kalman gain K;
+    MatrixXd K = Tc * Si;                                       //Kalman gain K;
     VectorXd z_diff = meas_package.raw_measurements_ - z_pred;  //residual
     z_diff(1) = fmod(z_diff(1), M_PI);                          //angle normalization
     

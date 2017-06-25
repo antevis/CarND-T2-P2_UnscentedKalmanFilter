@@ -15,45 +15,23 @@ using Eigen::VectorXd;
 class UKF {
     
 public:
+    
+    UKF(); ///* Constructor
+    virtual ~UKF(); ///* Destructor
 
     ///* state vector: [pos1 pos2 vel_abs yaw_angle yaw_rate] in SI units and rad
     VectorXd x_;
     
-    ///* state covariance matrix
-    MatrixXd P_;
-
-    const int n_aug_ = 7;
-    ///* keep time of previous measurement
-    
-    ///* Sigma point spreading parameter
-    double lambda_ = 3 - n_aug_;
-    
-    ///* Process noise standard deviation longitudinal acceleration in m/s^2
-    double std_a_;
-    
-    ///* Process noise standard deviation yaw acceleration in rad/s^2
-    double std_yawdd_;
-    
-    /**
-    * Constructor
-    */
-    UKF();
-
-    /**
-    * Destructor
-    */
-    virtual ~UKF();
-
     /**
     * ProcessMeasurement
     * @param meas_package The latest measurement data of either radar or laser
     */
     void ProcessMeasurement(MeasurementPackage meas_package);
     
-    //Radar NIS
+    ///* Radar NIS
     float nis_radar_;
     
-    //Lidar NIS
+    ///* Lidar NIS
     float nis_laser_;
     
 private:
@@ -67,18 +45,15 @@ private:
     ///* if this is false, radar measurements will be ignored (except for init)
     bool use_radar_;
     
+    ///* state covariance matrix
+    MatrixXd P_;
+    
     ///* predicted sigma points matrix
     MatrixXd Xsig_pred_;
-    
-    
     
     ///* time when the state is true, in us
     //Don't know what this is.
     //long long time_us_;
-    
-    
-    
-    
     
     /*
      MEASUREMENT MOISE. Since it's not suppused to be tuned, declared them as constants
@@ -95,13 +70,25 @@ private:
     ///* Radar measurement noise standard deviation radius change in m/s
     const double std_radrd_ = .3;
     
+    ///* PROCESS NOISE (to be tuned)
+    ///* Process noise standard deviation longitudinal acceleration in m/s^2
+    double std_a_;
+    ///* Process noise standard deviation yaw acceleration in rad/s^2
+    double std_yawdd_;
+    
     ///* Weights of sigma points
     VectorXd weights_;
+    
+    ///*Augmented state dimension
+    const int n_aug_ = 7;
+    
+    ///* Sigma point spreading parameter
+    double lambda_ = 3 - n_aug_;
     
     ///* State dimension
     const int n_x_ = 5;
     
-    // Previous timestamp
+    ///*Previous timestamp
     long long prev_t_;
     
     Tools tools;
@@ -149,9 +136,6 @@ private:
     
     SigmaPoint GetSigmaPoint(Eigen::MatrixXd& Xsig, char colum_idx);
     void SetSigmaPoint(SigmaPoint& point, char column_idx, Eigen::MatrixXd& Xsig);
-    
-//    ofstream
-    
 };
 
 #endif /* UKF_H */
