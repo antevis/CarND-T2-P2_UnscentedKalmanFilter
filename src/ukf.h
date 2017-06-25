@@ -93,9 +93,9 @@ private:
     
     Tools tools;
     
-    Eigen::MatrixXd H_laser_;
-    Eigen::MatrixXd R_laser_; // Laser measurement noise covariance matrix
-    Eigen::MatrixXd R_radar_; // Radar measurement noise covariance matrix
+    MatrixXd H_laser_;
+    MatrixXd R_laser_; // Laser measurement noise covariance matrix
+    MatrixXd R_radar_; // Radar measurement noise covariance matrix
     
     /**
      * Prediction Predicts sigma points, the state, and the state covariance
@@ -134,8 +134,8 @@ private:
         double nu_yawdd;
     };
     
-    SigmaPoint GetSigmaPoint(Eigen::MatrixXd& Xsig, char colum_idx);
-    void SetSigmaPoint(SigmaPoint& point, char column_idx, Eigen::MatrixXd& Xsig);
+    SigmaPoint GetSigmaPoint(MatrixXd& Xsig, char colum_idx);
+    void SetSigmaPoint(SigmaPoint& point, char column_idx, MatrixXd& Xsig);
 };
 
 #endif /* UKF_H */
