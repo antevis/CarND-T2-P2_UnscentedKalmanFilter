@@ -1,6 +1,6 @@
 [//]: # (Image References)
 [lidarNIS]: ./data/LidarNIS.png
-[radarNIS]: ./data/LidarNIS.png
+[radarNIS]: ./data/RadarNIS.png
 
 # Unscented Kalman Filter Project
 **Self-Driving Car Engineer Nanodegree Program**
