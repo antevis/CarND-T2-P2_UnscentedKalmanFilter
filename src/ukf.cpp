@@ -13,7 +13,7 @@ UKF::UKF() {
     
     // if this is false, laser measurements will be ignored (except during init)
     use_laser_ = true;
-
+    
     // if this is false, radar measurements will be ignored (except during init)
     use_radar_ = true;
 
@@ -32,13 +32,13 @@ UKF::UKF() {
     is_initialized_ = false;
     
     
-    H_laser_ = MatrixXd(2, n_x_);
+    H_laser_ = Eigen::MatrixXd(2, n_x_);
     H_laser_.fill(0.);
     for (int i = 0; i < H_laser_.rows(); ++i) {
         H_laser_(i, i) = 1.;
     }
     
-    R_laser_ = MatrixXd(2, 2);
+    R_laser_ = Eigen::MatrixXd(2, 2);
     R_laser_ <<
         pow(std_laspx_, 2), 0.,
         0.,                  pow(std_laspy_, 2);
@@ -68,7 +68,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
         P_ = MatrixXd::Identity(x_size, x_size);
         
         
-        if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+        if (meas_package.sensor_type_ == MeasurementPackage::LASER && use_laser_) {
             
             //Initialize state.
             x_(0) = meas_package.raw_measurements_[0];
@@ -76,10 +76,10 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
             
             
             
-        } else if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
+        } else if (meas_package.sensor_type_ == MeasurementPackage::RADAR && use_radar_) {
             
             //Convert radar from polar to cartesian coordinates and initialize state.
-            const VectorXd init_state = tools.PolarToCartesian(meas_package.raw_measurements_);
+            const Eigen::VectorXd init_state = tools.PolarToCartesian(meas_package.raw_measurements_);
             
             x_(0) = init_state(0);
             x_(1) = init_state(1);
@@ -102,9 +102,9 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     
     Prediction(dt);
     
-    if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
+    if (meas_package.sensor_type_ == MeasurementPackage::LASER && use_laser_) {
         UpdateLidar(meas_package);
-    } else if (meas_package.sensor_type_ == MeasurementPackage::RADAR) {
+    } else if (meas_package.sensor_type_ == MeasurementPackage::RADAR && use_radar_) {
         UpdateRadar(meas_package);
     }
     
@@ -149,7 +149,7 @@ MatrixXd UKF::AugSigmaPoints() {
     return Xsig_aug;
 }
 
-UKF::SigmaPoint UKF::GetSigmaPoint(MatrixXd& Xsig, char colum_idx) {
+UKF::SigmaPoint UKF::GetSigmaPoint(Eigen::MatrixXd& Xsig, char colum_idx) {
     //extract values for better readability
     const VectorXd sigma_point = Xsig.col(colum_idx);
     SigmaPoint pt = SigmaPoint();
@@ -165,7 +165,7 @@ UKF::SigmaPoint UKF::GetSigmaPoint(MatrixXd& Xsig, char colum_idx) {
     return pt;
 }
 
-void UKF::SetSigmaPoint(SigmaPoint& point, char column_idx, MatrixXd& Xsig) {
+void UKF::SetSigmaPoint(SigmaPoint& point, char column_idx, Eigen::MatrixXd& Xsig) {
     Xsig(0, column_idx) = point.p_x;
     Xsig(1, column_idx) = point.p_y;
     Xsig(2, column_idx) = point.v;
@@ -290,7 +290,7 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
     VectorXd y = meas_package.raw_measurements_ - H_laser_ * x_;
     MatrixXd PHt = P_ * H_laser_.transpose();
     MatrixXd S = H_laser_ * PHt + R_laser_;
-    MatrixXd Si = S.inverse();
+    Eigen::MatrixXd Si = S.inverse();
     MatrixXd K = PHt * Si;
     
     //new state
@@ -321,8 +321,8 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
     //transform sigma points into measurement space
     for (int i = 0; i < 2 * n_aug_ + 1; ++i) {
         
-        const VectorXd sigma_point = Xsig_pred_.col(i);
-        const VectorXd polar_point = tools.CartesianToPolarCTRV(sigma_point);
+        const Eigen::VectorXd sigma_point = Xsig_pred_.col(i);
+        const Eigen::VectorXd polar_point = tools.CartesianToPolarCTRV(sigma_point);
         
         Zsig(0,i) = polar_point(0); //rho
         Zsig(1,i) = polar_point(1); //phi
@@ -342,7 +342,7 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
     }
     
     S += R_radar_;
-    MatrixXd Si = S.inverse();
+    Eigen::MatrixXd Si = S.inverse();
     MatrixXd K = Tc * Si;                                       //Kalman gain K;
     VectorXd z_diff = meas_package.raw_measurements_ - z_pred;  //residual
     z_diff(1) = fmod(z_diff(1), M_PI);                          //angle normalization
